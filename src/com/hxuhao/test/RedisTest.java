@@ -32,7 +32,7 @@ public class RedisTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void hashOpsTest(){
 		RedisConnection connection = RedisManager.getInstance().getConnection();
 		System.out.println(connection.hset("hxuhao", "name", new String("何徐昊")));

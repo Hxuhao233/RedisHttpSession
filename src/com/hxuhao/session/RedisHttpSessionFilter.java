@@ -41,9 +41,10 @@ public class RedisHttpSessionFilter implements Filter {
 	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
 	 */
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		// TODO Auto-generated method stub
+
 		// place your code here
 		RedisSessionRequestWrapper  requestWrapper = new RedisSessionRequestWrapper((HttpServletRequest)request);
+		System.out.println("RedisSessionRequestWrapper fin");
 		RedisSessionResponseWrapper responseWrapper = new RedisSessionResponseWrapper((HttpServletResponse)response, requestWrapper);
 		// pass the request along the filter chain
 		chain.doFilter(requestWrapper, responseWrapper);
@@ -72,15 +73,20 @@ public class RedisHttpSessionFilter implements Filter {
             super(request);
             this.request = request;
             this.token = request.getHeader(TOKEN_HEADER_NAME);
+            System.out.println("request get header " + this.token);
         }
 
         @Override
         public HttpSession getSession(boolean create) {
             if (token != null) {
+                System.out.println("request getSession token1 : " + token);
                 return repository.getSession(token, request.getServletContext());
             } else if (create){
+            	System.out.println("create new session");
                 HttpSession session = repository.newSession(request.getServletContext());
                 token = session.getId();
+                
+                //System.out.println("request getSession token2 : " + token);
                 return session;
             } else {
                 return null;
@@ -89,6 +95,7 @@ public class RedisHttpSessionFilter implements Filter {
 
         @Override
         public HttpSession getSession() {
+        	//System.out.println("RedisSessionRequestWrapper getSession" );
             return getSession(true);
         }
 
@@ -99,7 +106,9 @@ public class RedisHttpSessionFilter implements Filter {
     }
 
     private final class RedisSessionResponseWrapper extends HttpServletResponseWrapper {
-        /**
+        
+    	private HttpServletResponse response;
+    	/**
          * Constructs a response adaptor wrapping the given response.
          *
          * @param response
@@ -108,7 +117,10 @@ public class RedisHttpSessionFilter implements Filter {
         public RedisSessionResponseWrapper(HttpServletResponse response, RedisSessionRequestWrapper request) {
             super(response);
             //if session associate with token is not existed, create one for the response
+            System.out.println("response set header start ");
+            this.response = response;
             response.setHeader(TOKEN_HEADER_NAME, request.getSession(true).getId());
+            System.out.println("response set header fin ");
         }
     }
 

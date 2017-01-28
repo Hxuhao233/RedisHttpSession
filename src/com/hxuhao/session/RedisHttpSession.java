@@ -16,7 +16,7 @@ import com.hxuhao.redis.RedisConnection;
 
 public class RedisHttpSession implements HttpSession{
 
-    public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
+    public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800/30;
 
     public static final String SESSION_PREFIX = "session:";
     private static final String SESSION_ATTR = "sessionAttr:";
@@ -56,6 +56,7 @@ public class RedisHttpSession implements HttpSession{
 	
 	// save to redis
 	private void saveSession(){
+		System.out.println(key + " save to redis");
 		redisConnection.hset(key, LAST_ACCESSED_TIME, lastAccessTime);
 		redisConnection.hset(key, CREATION_TIME, createTime);
 		redisConnection.hset(key, MAX_INACTIVE_INTERVAL, maxInactiveInterval);
@@ -63,19 +64,19 @@ public class RedisHttpSession implements HttpSession{
 	}
 
 	public void refresh(){
+		System.out.println(key + " refresh");
 		redisConnection.expire(key, getMaxInactiveInterval());
 	}
 	
 	public static RedisHttpSession createWithExistSession(String token,ServletContext servletContext,RedisConnection redisConnection){
 		RedisHttpSession redisHttpSession = new RedisHttpSession();
 		redisHttpSession.setId(token);
+		redisHttpSession.setKey(SESSION_PREFIX + token);
 		redisHttpSession.setServletContext(servletContext);
 		redisHttpSession.setRedisConnection(redisConnection);
 		
 		return redisHttpSession;
 	}
-	
-	
 	
 	public void setServletContext(ServletContext servletContext) {
 		ServletContext = servletContext;
@@ -92,6 +93,7 @@ public class RedisHttpSession implements HttpSession{
 	// put the info in the session
 	@Override
 	public void setAttribute(String name, Object value) {
+		//System.out.println("set " + key + " field :" + name + " value : " + value );
 		redisConnection.hset(key, SESSION_ATTR + name, (Serializable)value);		
 	}
 	
@@ -202,8 +204,9 @@ public class RedisHttpSession implements HttpSession{
 		redisConnection.del(key);
 	}
 	
-	public boolean isValidated(){
-		return redisConnection.exists(key);
+	public boolean isInvalidated(){
+		System.out.println(id + " : " + key );
+		return !redisConnection.exists(key);
 	}
 
 	@Override

@@ -62,13 +62,13 @@ public class RedisConfig {
 			// decorator and adapter
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
-			System.out.println("go");
+			//System.out.println("go");
 			String line = bufferedReader.readLine();
 			while(line != null){
 				sb.append(line);
 				line = bufferedReader.readLine();
 			}
-			System.out.println(sb.toString());
+			//System.out.println(sb.toString());
 			return sb.toString();
 			
 		} catch (UnsupportedEncodingException e) {

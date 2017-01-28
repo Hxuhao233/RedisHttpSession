@@ -16,7 +16,7 @@ public class RedisHttpSessionRepository {
 	
 	private RedisHttpSessionRepository(){
 		this.redisManager = RedisManager.getInstance();
-		this.redisConnection = redisManager.getInstance().getConnection();
+		this.redisConnection = redisManager.getConnection();
 	}
 	
 	public static RedisHttpSessionRepository getInstance(){
@@ -26,6 +26,7 @@ public class RedisHttpSessionRepository {
 	public HttpSession newSession(ServletContext servletContext){
 		checkConnection();
 		RedisHttpSession redisHttpSession = RedisHttpSession.createNew(servletContext, redisConnection);
+		//System.out.println("fin");
         return (HttpSession) new RedisHttpSessionProxy().bind(redisHttpSession);
 	}
 	
